@@ -44,7 +44,7 @@ _________________________________________
 ### Versions 
   There are two versions, one allow us to segment the gesture data mannually. The other one can do the segmentation automatically.
 
-## Performance report  
+## Performance report  (todo)
 The performance metrics are calculate based on the manual segmentated data (ground truth).
 
 
