@@ -17,15 +17,27 @@ ____________________________________________
   ![result](https://github.com/lrlrlrlr/mmWave-and-CSI-Segmentation/blob/main/doc/result.png)
 
 
+
+
+_________________________________________
+## Example gesture dataset download
+1. to be upload
+
+
+_________________________________________
+
 ## Run the code 
 0. Dependencies
     Please install the following libraries:
       - numpy
       - scipy
-
+1. Prepare your dataset
+  - the format of mmWave file: txt
+  - the format of pushpull file: dat
 
 2. Run main.py  
     `main.py input_directory output_directory`
+    
 4. example of output
 
 
@@ -36,11 +48,12 @@ ____________________________________________
 The performance metrics are calculate based on the manual segmentated data (ground truth).
 
 
-1. PA
-2. MPA
-3. IU / IoU（Intersection over Union）
+1. Pixel Accuracy (PA)
+2. Mean Pixel Accuracy (MPA)
+3. Intersection over Union (IU / IoU)
       For the two regions R and R’, the overlap is calculated as follows:
       The covering index is calculated as:
-
-
- 
+____________________________________________
+### Reference 
+ [A Review on Deep Learning Techniques Applied to Semantic Segmentation](https://arxiv.org/abs/1704.06857)
+___________________________________________
