@@ -50,11 +50,13 @@ _______________________________________________________
 The performance metrics are calculate based on the manual segmentated data (ground truth).
 
 
-1. Pixel Accuracy (PA)
-2. Mean Pixel Accuracy (MPA)
-3. Intersection over Union (IU / IoU)
-      For the two regions R and R’, the overlap is calculated as follows:
-      The covering index is calculated as:
+1. Pixel Accuracy (PA) & Mean Pixel Accuracy (MPA)
+  <img src="https://user-images.githubusercontent.com/27357380/126575604-586462de-b349-4cff-ac8c-a196822a1402.png"  height="300">
+
+4. Intersection over Union (IU / IoU)  
+      ![image](https://user-images.githubusercontent.com/27357380/126575643-31fb9baf-1330-449d-b664-fe5aaebbebd1.png)
+      ![image](https://user-images.githubusercontent.com/27357380/126575628-eca991b9-30cc-4eae-a1f8-cee7319a385a.png)
+
 ____________________________________________
 ### Reference 
  [A Review on Deep Learning Techniques Applied to Semantic Segmentation](https://arxiv.org/abs/1704.06857)
