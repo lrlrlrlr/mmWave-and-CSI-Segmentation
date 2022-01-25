@@ -293,7 +293,7 @@ def ts_finding(start_frame, end_frame):
 
     start_founded = False
     end_founded = False
-    for thresh in range(150, 200):
+    for thresh in range(100, 300):
         if all([start_founded, end_founded]):
             return start_index, end_index
         for i in csi_timestamps:
@@ -313,158 +313,172 @@ def ts_finding(start_frame, end_frame):
 
 if __name__ == '__main__':
 
-    directory = r"E:\2020_10_14"
+    directorys = [r"G:\2020_12_09_problem_dataset"]
+    for directory in directorys:
 
-    filenames = [re.match('(.+)_mm_1.txt', file).group(1) for file in os.listdir(directory) if 'mm_1.txt' in file]
-    # filenames = ['2021_02_16_pushpull_n10','2021_02_16_pushpull_n30','2021_02_16_pushpull_n50']
-    for filename in filenames:
+        # filenames = [re.match('(.+).txt', file).group(1) for file in os.listdir(directory) if '_1.txt' in file or '_2.txt' in file or '_0.txt' in file]
+        # filenames = []
+        filenames = [re.match('(.+)_mm_2.txt', file).group(1) for file in os.listdir(directory) if 'mm_2.txt' in file]
 
-        txt_file = f"{directory}\\{filename}_mm_1.txt"
-        mat_file = f"{directory}\\{filename}.mat"
-        TEST_RANGE = 0
-        output_directory = f"{directory}\\{filename}"
-        if not os.path.exists(output_directory):
-            os.mkdir(output_directory)
 
-        # COLOR_THRESHOLD = 200
+        for filename in filenames:
 
-        # General setting
-        # TEST_RANGE = 200
-        # COLOR_THRESHOLD = 170
-        FILTER_THRESH = 5
+            # txt_file = f"{directory}\\{filename}.txt"
+            # mat_file = f"{directory}\\{filename}.mat"
+            txt_file = f"{directory}\\{filename}_mm_2.txt"
+            mat_file = f"{directory}\\{filename}.mat"
 
-        # loading files
-        mmwave, mmwave_timestamps = load_mmwave(txt_file)
-        csi_workspace = loadmat(mat_file)
-        csi = csi_workspace['doppler_spectrum'][0]
-        csi_timestamps = csi_workspace['time_matlab_string']
-        csi_timestamps = vfunc(csi_timestamps)
+            if not (os.path.exists(txt_file) and os.path.exists(mat_file)):
+                print(f"File not exist: {txt_file} / {mat_file}")
+                continue
 
-        COLOR_THRESHOLD = np.percentile(mmwave, 98)
-        # seg_by_my_hand
-        # main()
 
-        mmwave_original, mmwave_timestamps = load_original_mmwave(txt_file)
+            TEST_RANGE = 0
+            output_directory = f"{directory}\\{filename}"
+            if not os.path.exists(output_directory):
+                os.mkdir(output_directory)
 
-        if TEST_RANGE == 0:
-            TEST_RANGE = mmwave.shape[-1]
+            # COLOR_THRESHOLD = 200
 
-        _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
-        ax1.imshow(mmwave_original[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
-        plt.axis('off')
-        plt.gca().xaxis.set_major_locator(plt.NullLocator())
-        plt.gca().yaxis.set_major_locator(plt.NullLocator())
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        plt.margins(0, 0)
-        plt.savefig(f'{output_directory}\\original_mmwave.png', format='png')
+            # General setting
+            # TEST_RANGE = 200
+            # COLOR_THRESHOLD = 170
+            FILTER_THRESH = 15
 
-        # Save orignal mmwave image
-        mmwave, mmwave_timestamps = load_mmwave(txt_file)
-        _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
-        ax1.imshow(mmwave[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
-        plt.axis('off')
-        plt.gca().xaxis.set_major_locator(plt.NullLocator())
-        plt.gca().yaxis.set_major_locator(plt.NullLocator())
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        plt.margins(0, 0)
-        plt.savefig(f'{output_directory}\\original_mmwave_bg_removed.png', format='png')
-        # Save orignal csi image
-        _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
-        ax1.imshow(csi[:, 0:int(TEST_RANGE * 25)], aspect='auto', interpolation='sinc')
-        plt.axis('off')
-        plt.gca().xaxis.set_major_locator(plt.NullLocator())
-        plt.gca().yaxis.set_major_locator(plt.NullLocator())
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        plt.margins(0, 0)
-        plt.savefig(f'{output_directory}\\original_wifi.png', format='png')
+            # loading files
+            mmwave, mmwave_timestamps = load_mmwave(txt_file)
+            csi_workspace = loadmat(mat_file)
+            csi = csi_workspace['doppler_spectrum'][0]
+            csi_timestamps = csi_workspace['time_matlab_string']
+            csi_timestamps = vfunc(csi_timestamps)
 
-        plt.tight_layout()
-        p = np.arange(45, -55, -1).tolist()
-        fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8, 6))
-        plt.setp(ax1, yticks=range(16), yticklabels=n, xlabel='Frame', ylabel='Velocity (m/s)')
+            print(filename)
+            print(f"CSI min:{min(csi_timestamps)}, max:{max(csi_timestamps)}\nmmWave min:{min(mmwave_timestamps)}, max:{max(mmwave_timestamps)}")
+            COLOR_THRESHOLD = np.percentile(mmwave, 98)
+            # seg_by_my_hand
+            # main()
 
-        origin_mmwave = mmwave[:, :TEST_RANGE]
+            mmwave_original, mmwave_timestamps = load_original_mmwave(txt_file)
 
-        # set an threshold
-        data = origin_mmwave > COLOR_THRESHOLD
+            if TEST_RANGE == 0:
+                TEST_RANGE = mmwave.shape[-1]
 
-        # axs.title = "thresh images"
-        ax1.set_title("original")
-        ax2.set_title("background-removed")
+            _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+            ax1.imshow(mmwave_original[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+            plt.margins(0, 0)
+            plt.savefig(f'{output_directory}\\original_mmwave.png', format='png')
 
-        ax1.imshow(mmwave_original[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
-        ax3.set_title("after thresh")
-        ax2.imshow(origin_mmwave, aspect='auto', interpolation='sinc')
-        ax3.imshow(data, aspect='auto', interpolation='sinc')
-        ax2.set_yticks([])
-        ax3.set_yticks([])
+            # Save orignal mmwave image
+            mmwave, mmwave_timestamps = load_mmwave(txt_file)
+            _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+            ax1.imshow(mmwave[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+            plt.margins(0, 0)
+            plt.savefig(f'{output_directory}\\original_mmwave_bg_removed.png', format='png')
+            # Save orignal csi image
+            _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+            ax1.imshow(csi[:, 0:int(TEST_RANGE * 25)], aspect='auto', interpolation='sinc')
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+            plt.margins(0, 0)
+            plt.savefig(f'{output_directory}\\original_wifi.png', format='png')
 
-        plt.savefig(f'{output_directory}\\out2.png', format='png')
-        plt.show()
+            plt.tight_layout()
+            p = np.arange(45, -55, -1).tolist()
+            fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(8, 6))
+            plt.setp(ax1, yticks=range(16), yticklabels=n, xlabel='Frame', ylabel='Velocity (m/s)')
 
-        # scan col by col
-        # np.transpose(data)
+            origin_mmwave = mmwave[:, :TEST_RANGE]
 
-        ## find per col, if there is any value > 0, then consider as a start
+            # set an threshold
+            data = origin_mmwave > COLOR_THRESHOLD
 
-        trans_data = [any(col) for col in np.transpose(data)]
+            # axs.title = "thresh images"
+            ax1.set_title("original")
+            ax2.set_title("background-removed")
 
-        true_range = find_True_range(trans_data)
-        fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
-        ax1.set_title("Filtered the outlier -- by gesture length")
-        ax1.hist(list(map(lambda x: x[1] - x[0], true_range)), 100, alpha=0.5, width=1, edgecolor='white', linewidth=2)
+            ax1.imshow(mmwave_original[:, :TEST_RANGE], aspect='auto', interpolation='sinc')
+            ax3.set_title("after thresh")
+            ax2.imshow(origin_mmwave, aspect='auto', interpolation='sinc')
+            ax3.imshow(data, aspect='auto', interpolation='sinc')
+            ax2.set_yticks([])
+            ax3.set_yticks([])
 
-        # filter
-        # (length-mean)/std
-        try:
-            true_range_filted = remove_extreme_value(true_range)
-            lower_bound = min(list(map(lambda x: x[1] - x[0], true_range_filted)))
-            upper_bound = max(list(map(lambda x: x[1] - x[0], true_range_filted)))
-            ax1.axvline(x=lower_bound, color="red")
-            ax1.axvline(x=upper_bound, color="red")
-        except:
-            pass
-        plt.savefig(f'{output_directory}\\outlier filter.png', format='png')
+            plt.savefig(f'{output_directory}\\out2.png', format='png')
+            plt.show()
 
-        plt.show()
+            # scan col by col
+            # np.transpose(data)
 
-        fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(16, 9))
-        axs.set_title(f"There are {len(true_range)} gestures. {len(true_range_filted)} considered as valid.")
-        axs.imshow(origin_mmwave, aspect='auto', interpolation='sinc')
-        for mm_start, mm_end in true_range:
-            plt.axvline(x=mm_start, color="yellow")  # Starting gesture index
-            plt.axvline(x=mm_end, color="yellow")  # Ending gesture index
+            ## find per col, if there is any value > 0, then consider as a start
 
-        for mm_start, mm_end in true_range_filted:
-            rect = plt.Rectangle((mm_start, 0), mm_end - mm_start, 15, fill=False, edgecolor='red', linewidth=2)
-            axs.add_patch(rect)
-        plt.savefig(f'{output_directory}\\mmwave_selected.png', format='png')
-        plt.show()
+            trans_data = [any(col) for col in np.transpose(data)]
 
-        # Save orignal csi image
-        _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
-        ax1.imshow(csi[:, 0:int(TEST_RANGE * 25)], aspect='auto', interpolation='sinc')
-        plt.axis('off')
-        plt.gca().xaxis.set_major_locator(plt.NullLocator())
-        plt.gca().yaxis.set_major_locator(plt.NullLocator())
-        plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        plt.margins(0, 0)
-        plt.savefig(f'{output_directory}\\original_wifi_plot.png', format='png')
-        file_n = 0
-        for mm_start, mm_end in true_range_filted:
-            file_n += 1
+            true_range = find_True_range(trans_data)
+            fig, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+            ax1.set_title("Filtered the outlier -- by gesture length")
+            ax1.hist(list(map(lambda x: x[1] - x[0], true_range)), 100, alpha=0.5, width=1, edgecolor='white', linewidth=2)
+
+            # filter
+            # (length-mean)/std
             try:
-                csi_start, csi_end = ts_finding(mm_start, mm_end)
+                true_range_filted = remove_extreme_value(true_range)
+                lower_bound = min(list(map(lambda x: x[1] - x[0], true_range_filted)))
+                upper_bound = max(list(map(lambda x: x[1] - x[0], true_range_filted)))
+                ax1.axvline(x=lower_bound, color="red")
+                ax1.axvline(x=upper_bound, color="red")
             except:
-                print('cant match the csi file, skip..')
-            else:
-                plt.axvline(x=csi_start, color="yellow")  # Starting gesture index
-                plt.axvline(x=csi_end, color="yellow")  # Ending gesture index
+                pass
+            plt.savefig(f'{output_directory}\\outlier filter.png', format='png')
 
-                scaled_csi = scale_minmax(csi[:, csi_start:csi_end])
-                scaled_mmwave = scale_minmax(mmwave[:, mm_start:mm_end])
-                save_filename = f'{filename}_{file_n}.npz'
-                np.savez(f"{output_directory}\\{save_filename}", a=scaled_csi, b=scaled_mmwave)
-                print(save_filename)
-        plt.savefig(f'{output_directory}\\wifi_selected.png', format='png')
-        plt.show()
+            plt.show()
+
+            fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(16, 9))
+            axs.set_title(f"There are {len(true_range)} gestures. {len(true_range_filted)} considered as valid.")
+            axs.imshow(origin_mmwave, aspect='auto', interpolation='sinc')
+            for mm_start, mm_end in true_range:
+                plt.axvline(x=mm_start, color="yellow")  # Starting gesture index
+                plt.axvline(x=mm_end, color="yellow")  # Ending gesture index
+
+            for mm_start, mm_end in true_range_filted:
+                rect = plt.Rectangle((mm_start, 0), mm_end - mm_start, 15, fill=False, edgecolor='red', linewidth=2)
+                axs.add_patch(rect)
+            plt.savefig(f'{output_directory}\\mmwave_selected.png', format='png')
+            plt.show()
+
+            # Save orignal csi image
+            _, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(8, 6))
+            ax1.imshow(csi[:, 0:int(TEST_RANGE * 25)], aspect='auto', interpolation='sinc')
+            plt.axis('off')
+            plt.gca().xaxis.set_major_locator(plt.NullLocator())
+            plt.gca().yaxis.set_major_locator(plt.NullLocator())
+            plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
+            plt.margins(0, 0)
+            plt.savefig(f'{output_directory}\\original_wifi_plot.png', format='png')
+            file_n = 0
+            for mm_start, mm_end in true_range_filted:
+                file_n += 1
+                try:
+                    csi_start, csi_end = ts_finding(mm_start, mm_end)
+                except:
+                    print(f'{mat_file}: cant match the csi file, skip..')
+                else:
+                    plt.axvline(x=csi_start, color="yellow")  # Starting gesture index
+                    plt.axvline(x=csi_end, color="yellow")  # Ending gesture index
+
+                    scaled_csi = scale_minmax(csi[:, csi_start:csi_end])
+                    scaled_mmwave = scale_minmax(mmwave[:, mm_start:mm_end])
+                    save_filename = f'{filename}_{file_n}.npz'
+                    np.savez(f"{output_directory}\\{save_filename}", a=scaled_csi, b=scaled_mmwave)
+                    print(save_filename)
+            plt.savefig(f'{output_directory}\\wifi_selected.png', format='png')
+            plt.show()
